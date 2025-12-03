@@ -4,31 +4,46 @@ pub fn part_one(input: &str) -> Option<u64> {
     let mut total_ouput = 0;
 
     for line in input.lines() {
-        let bytes = line.as_bytes();
-        let len = bytes.len();
-        let mut largest = 0;
-
-        for (i, d1) in bytes.iter().enumerate() {
-            let d1 = (d1 - b'0') as u64;
-
-            for d2 in bytes.iter().take(len).skip(i + 1) {
-                let d2 = (d2 - b'0') as u64;
-                let joltage = d1 * 10 + d2;
-
-                if joltage > largest {
-                    largest = joltage;
-                }
-            }
-        }
-
-        total_ouput += largest;
+        total_ouput += largest_joltage(line, 2);
     }
 
     Some(total_ouput)
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
-    None
+    let mut total_ouput = 0;
+
+    for line in input.lines() {
+        total_ouput += largest_joltage(line, 12);
+    }
+
+    Some(total_ouput)
+}
+
+fn largest_joltage(bank: &str, n_bat: u32) -> u64 {
+    match n_bat {
+        0 => 0,
+        n => do_largest_joltage(bank, n),
+    }
+}
+
+fn do_largest_joltage(bank: &str, n_bat: u32) -> u64 {
+    let bytes = bank.as_bytes();
+    let len = bank.len() - (n_bat as usize) + 1;
+    let mut max = 0;
+    let mut idx = 0;
+
+    for (i, b) in bytes[0..len].iter().enumerate() {
+        let d = (b - b'0') as u64;
+
+        if d > max {
+            max = d;
+            idx = i;
+        }
+    }
+
+    max *= 10_u64.pow(n_bat - 1);
+    max + largest_joltage(&bank[idx + 1..], n_bat - 1)
 }
 
 #[cfg(test)]
@@ -44,6 +59,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(3121910778619));
     }
 }
