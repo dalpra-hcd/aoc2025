@@ -1,18 +1,19 @@
 advent_of_code::solution!(1);
 
-pub fn part_one(input: &str) -> Option<i32> {
+pub fn part_one(input: &str) -> Option<u64> {
     let mut dial = 50;
     let mut password = 0;
 
     for line in input.lines() {
-        let (direction, num) = line.split_at(1);
-        let mut num = num.parse::<i32>().ok()?;
+        let (dir, num) = line.split_at(1);
+        let num = num.parse::<i32>().unwrap();
+        let rot: i32 = match dir {
+            "L" => -num,
+            "R" => num,
+            _ => unreachable!(),
+        };
 
-        if direction == "L" {
-            num *= -1;
-        }
-
-        dial = (dial + num).rem_euclid(100);
+        dial = (dial + rot).rem_euclid(100);
         if dial == 0 {
             password += 1;
         }
@@ -26,21 +27,20 @@ pub fn part_two(input: &str) -> Option<i32> {
     let mut password = 0;
 
     for line in input.lines() {
-        let (direction, num) = line.split_at(1);
-        let mut num = num.parse::<i32>().ok()?;
+        let (dir, num) = line.split_at(1);
+        let num = num.parse::<i32>().unwrap();
+        let rot: i32 = match dir {
+            "L" => -1,
+            "R" => 1,
+            _ => unreachable!(),
+        };
 
-        if direction == "L" {
-            num *= -1;
+        for _ in 0..num {
+            dial = (dial + rot).rem_euclid(100);
+            if dial == 0 {
+                password += 1;
+            }
         }
-
-        if num >= 0 {
-            password += (dial + num) / 100;
-        } else {
-            let reversed = (100 - dial) % 100;
-            password += (reversed - num) / 100;
-        }
-
-        dial = (dial + num).rem_euclid(100);
     }
 
     Some(password)
