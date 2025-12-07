@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 advent_of_code::solution!(5);
 
 pub fn part_one(input: &str) -> Option<u64> {
@@ -48,15 +46,28 @@ pub fn part_two(input: &str) -> Option<u64> {
         ranges.push((start.parse::<u64>().ok()?, end.parse::<u64>().ok()?));
     }
 
-    let mut fresh: HashSet<u64> = HashSet::new();
+    ranges.sort_by_key(|r| r.0);
 
-    for (start, end) in ranges {
-        for ingredient in start..=end {
-            fresh.insert(ingredient);
+    let mut fresh = 0u64;
+
+    let mut fresh_start = ranges[0].0;
+    let mut fresh_end = ranges[0].1;
+
+    for &(start, end) in ranges.iter().skip(1) {
+        if start > fresh_end + 1 {
+            // gap
+            fresh += fresh_end - fresh_start + 1;
+            fresh_start = start;
+            fresh_end = end;
+        } else if end > fresh_end {
+            // overlap
+            fresh_end = end;
         }
     }
 
-    Some(fresh.len() as u64)
+    fresh += fresh_end - fresh_start + 1;
+
+    Some(fresh)
 }
 
 #[cfg(test)]
