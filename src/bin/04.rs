@@ -1,13 +1,24 @@
 advent_of_code::solution!(4);
 
 pub fn part_one(input: &str) -> Option<u64> {
-    let grid = parse_grid(input);
-    let accessible_cnt = count_accessible(grid);
+    let mut grid = parse_grid(input);
+    let accessible_cnt = count_and_replace_accessible(&mut grid, '@');
     Some(accessible_cnt)
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
-    None
+    let mut grid = parse_grid(input);
+
+    let mut total_accessible_cnt = 0;
+    loop {
+        let accessible_cnt = count_and_replace_accessible(&mut grid, '.');
+        if accessible_cnt == 0 {
+            break;
+        }
+        total_accessible_cnt += accessible_cnt;
+    }
+
+    Some(total_accessible_cnt)
 }
 
 fn parse_grid(input: &str) -> Vec<Vec<char>> {
@@ -20,7 +31,7 @@ fn parse_grid(input: &str) -> Vec<Vec<char>> {
     grid
 }
 
-fn count_accessible(grid: Vec<Vec<char>>) -> u64 {
+fn count_and_replace_accessible(grid: &mut [Vec<char>], replace: char) -> u64 {
     let rows = grid.len();
     let cols = grid[0].len();
     let directions = [
@@ -58,6 +69,7 @@ fn count_accessible(grid: Vec<Vec<char>>) -> u64 {
 
                 if neighbour_cnt < 4 {
                     accessible_cnt += 1;
+                    grid[r][c] = replace;
                 }
             }
         }
@@ -79,6 +91,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(43));
     }
 }
