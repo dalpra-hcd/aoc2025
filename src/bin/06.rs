@@ -1,44 +1,27 @@
 advent_of_code::solution!(6);
 
 pub fn part_one(input: &str) -> Option<u64> {
-    let mut homework: Vec<&str> = Vec::new();
-    for line in input.lines() {
-        if !line.is_empty() {
-            homework.push(line);
-        }
-    }
+    let mut lines: Vec<&str> = input.lines().filter(|line| !line.is_empty()).collect();
 
-    let operations: Vec<&str> = homework.last()?.split_ascii_whitespace().collect();
-    let mut numbers: Vec<Vec<u64>> = Vec::new();
-    for line in homework.iter().take(homework.len() - 1) {
-        let ns: Vec<u64> = line
-            .split_ascii_whitespace()
-            .filter_map(|s| s.parse::<u64>().ok())
-            .collect();
-        numbers.push(ns);
-    }
+    let operations: Vec<&str> = lines.pop()?.split_ascii_whitespace().collect();
+    let numbers: Vec<Vec<u64>> = lines
+        .iter()
+        .map(|line| {
+            line.split_ascii_whitespace()
+                .filter_map(|s| s.parse::<u64>().ok())
+                .collect()
+        })
+        .collect();
 
-    let mut grand_total = 0u64;
-    for (idx, op) in operations.iter().enumerate() {
-        let problem: u64 = match *op {
-            "+" => {
-                let mut sum = 0u64;
-                for row in &numbers {
-                    sum += row[idx];
-                }
-                sum
-            }
-            "*" => {
-                let mut prod = 1u64;
-                for row in &numbers {
-                    prod *= row[idx];
-                }
-                prod
-            }
+    let grand_total: u64 = operations
+        .iter()
+        .enumerate()
+        .map(|(idx, op)| match *op {
+            "+" => numbers.iter().map(|row| row[idx]).sum::<u64>(),
+            "*" => numbers.iter().map(|row| row[idx]).product(),
             _ => unreachable!(),
-        };
-        grand_total += problem;
-    }
+        })
+        .sum();
 
     Some(grand_total)
 }
